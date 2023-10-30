@@ -11,15 +11,14 @@ def main():
         for cert_bin in entry['userCertificate']:
             cert = x509.load_der_x509_certificate(cert_bin, default_backend())
             serial_hex = hex(cert.serial_number)[2:]
-            if serial_hex not in revoked_certs:
-                try:
-                    san = cert.extensions.get_extension_for_class(x509.SubjectAlternativeName)
-                    for general_name in san.value:
-                        if isinstance(general_name, x509.OtherName):
-                            value = general_name.value.decode("ascii","ignore")
-                            print(f"Cert with serial {serial_hex} has san {general_name} value of '{value}'")
-                except x509.ExtensionNotFound:
-                    pass
+            try:
+                san = cert.extensions.get_extension_for_class(x509.SubjectAlternativeName)
+                for general_name in san.value:
+                    if isinstance(general_name, x509.OtherName):
+                        value = general_name.value.decode("ascii","ignore")
+                        print(f"Cert with serial {serial_hex} has san {general_name} value of '{value}'")
+            except x509.ExtensionNotFound:
+                pass
 
 if __name__ == "__main__":
     main()
